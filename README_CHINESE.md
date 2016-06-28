@@ -512,12 +512,14 @@ HTTP HEADER和HTTP BODY里的参数名都可以自定义
 		sharedSpoId: "6",
 		serviceProtocol: "local_php",
 		serviceProtocolOption: {
-		className: "Ops\Lib\Service\Meta\RepoService",
+			className: "Ops\Lib\Service\Meta\RepoService",
 			methodName: "createRepo"
 		},
 		sessionOption: "CHECK_USER_LOGIN"
 	}
 ## 5.2 客户端调用
+
+### 5.2.1 JS示例
 
     angular.module 'app.controllers'
 
@@ -530,6 +532,19 @@ HTTP HEADER和HTTP BODY里的参数名都可以自定义
           params: $scope.repo
           successCallBack: (data) ->
             $location.path("/ops_meta/repo_detail").search("id", data)
+
+### 5.2.2 Go示例
+
+	param := make(map[string]string)
+	param["osReleaseId"] = "3022"
+	resp, err = client.CallApi("ops.meta.osImage.listByOsReleaseId", "1.0", param)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(resp)
+	}
+	
+完整Go示例源码：https://github.com/OpsKitchen/ok_api_sdk_go/blob/master/example.go
 
 ## 5.3 服务端
 
