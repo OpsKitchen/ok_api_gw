@@ -125,13 +125,16 @@ API的唯一身份标识，名字相同的API，不同版本号对应不同的AP
 
 ### 1.2.1 多版本
 
-一个API可以有多个版本，如user.login 1.0，user.login 2.0
+一个API可以有多个版本，如user.login 1.0，user.login 2.0，
+
 名字加版本共同作为API的唯一身份标识，名字相同版本不同的API，是两个完全独立的API，其后的参数配置、权限、频率控制都是完全独立的
 ### 1.2.2 API与后端服务灵活映射
 
-每个API都可以定义自己的后端服务类型、class名（带namesapce的完整class name）、method名
-不同API可以对应同一个后端服务
-API名字与后端服务的名字没有任何潜规则限制，映射关系存储在数据库中。API名字一旦确定不能随便改，后端服务可以随意重构
+- 每个API都可以定义自己的后端服务类型、class名（带namesapce的完整class name）、method名
+- 不同API可以对应同一个后端服务
+- API名字与后端服务的名字没有任何潜规则限制，映射关系存储在数据库中
+- API名字一旦确定不能随便改，后端服务可以随意重构
+
 ### 1.2.3 输入参数
 
 支持三类输入参数：
@@ -143,12 +146,12 @@ API名字与后端服务的名字没有任何潜规则限制，映射关系存�
 包含两种：
 
 1. 标准的HTTP HEADER，如User-Agent
-2. 平台自定义的HTTP HEADER，如OA-Signature，
+2. 平台自定义的HTTP HEADER，如OA-Sign
 
 技术上讲，平台自定义的HTTP HEADER参数，放到HTTP BODY里去，也是可行的，为什么要放到HEADER里呢？两个原因：
 
 - 第一，是为了避免URL重放攻击，提升安全性
-- 第二，规范客户端的开发，HTTP HEADER里的参数，基本都是写死在app的配置里的，每次api请求都一样，如appkey, app client version。只有两个例外：signature和session id，它是变化的，但为了安全，放到HEADER里了
+- 第二，规范客户端的开发，HTTP HEADER里的参数，基本都是写死在app的配置里的，每次api请求都一样，如appkey, app version。只有两个例外：signature和session id，它是变化的，但为了安全，放到HEADER里了
 
 
 
@@ -195,8 +198,8 @@ app通过HTTP BODY提交上来的业务参数，个数不限，数据类型不�
 
 其具体实现是一个json串化后的kv列表，放在HTTP BODY的params字段中，如: {"username":"qinjx","password":"123456"}
 
-每个API的业务参数的参数名是在数据库里定义的
-每个业务参数的验证规则是在数据库里定义的，可以输出给客户端，保证前后端验证规则统一
+- 每个API的业务参数的参数名是在数据库里定义的
+- 每个业务参数的验证规则是在数据库里定义的，可以输出给客户端，保证前后端验证规则统一
 ## 1.3 后端服务
 
 定义API时，可以定义此API对应的后端服务，这些定义信息都存储在数据库里。
@@ -211,13 +214,13 @@ API可定义的后端服务类型包括：
 
 ##### 优点
 
-性能高
-简单，对既有业务侵入小，提供后端服务的人不需要学习和使用thrift, grpc等rpc框架，可以满足大多数小企业的需求
+- 性能高
+- 简单，对既有业务侵入小，提供后端服务的人不需要学习和使用thrift, grpc等rpc框架，可以满足大多数小企业的需求
 
 ##### 缺点
 
-后端服务只能是PHP写的（因为网关是PHP写的），通过类似quercus一类的JVM Base PHP runtime也有实现PHP本地调Java，但不是业界主流
-对大一点的系统来说，构架不优雅，API网关机器要有访问业务系统数据库的权限，还要配置后端服务依赖的环境（例如config, DI service），后端服务代码与网关代码会竞争系统资源（CPU、内存），影响网关稳定性
+- 后端服务只能是PHP写的（因为网关是PHP写的），通过类似quercus一类的JVM Base PHP runtime也有实现PHP本地调Java，但不是业界主流
+- 对大一点的系统来说，构架不优雅，API网关机器要有访问业务系统数据库的权限，还要配置后端服务依赖的环境（例如config, DI service），后端服务代码与网关代码会竞争系统资源（CPU、内存），影响网关稳定性
 
 #### 1.3.1.2 Thrift远程服务
 
@@ -230,13 +233,14 @@ API可定义的后端服务类型包括：
 
 ##### 优点
 
-后端服务可以用任何thrift支持的语言开发，除了支持PHP，thrift还支持：老牌主流编程语言C/C++, Java, C#；新贵Go, Haskell；脚本语言Python, Nodejs, Ruby, Perl，更多语言参见这个列表：https://github.com/apache/thrift/tree/master/tutorial
-架构优雅，网关与后端服务部署在不同的服务器，稳定和安全性好
+- 后端服务可以用任何thrift支持的语言开发，除了支持PHP，thrift还支持：老牌主流编程语言C/C++, Java, C#；新贵Go, Haskell；脚本语言Python, Nodejs, Ruby, Perl，更多语言参见这个列表：https://github.com/apache/thrift/tree/master/tutorial
+- 架构优雅，网关与后端服务部署在不同的服务器，稳定和安全性好
 
 ##### 缺点
 
-性能略差，差多少取决于rpc框架，socket模式下的thrift会比xmlrpc性能好
-后端服务开发人员要学习一种rpc框架才能把服务提供给网关
+- 性能略差，差多少取决于rpc框架，socket模式下的thrift会比xmlrpc性能好
+- 后端服务开发人员要学习一种rpc框架才能把服务提供给网关
+
 ### 1.3.2 后端服务的参数
 
 #### 1.3.2.1 参数的数据类型
@@ -266,6 +270,7 @@ API可定义的后端服务类型包括：
 - 数据来源
 - 数据类型
 - 默认值
+
 ##### 1.3.3.1 数据来源
 
 数据来源分4种，除了3种用户输入的参数外，还支持从服务端SESSION里取出数据，映射给后端服务，4种数据来源如下：
@@ -418,12 +423,18 @@ user.login 1.0和user.login 2.0是两个不同的api id，他们的权限规则�
 ### 1.7.1 自定义配置
 平台运营方可以自定义
 
-输出格式支持
+#### 1.7.1.1 输出格式支持
 
 支持json和jsonp两种，分别对应不同的网关url，如：
 
 api.ok.com/gw/json
 api.ok.com/gw/jsonp
+
+#### 1.7.1.2 系统参数名
+HTTP HEADER和HTTP BODY里的参数名都可以自定义
+
+#### 1.7.1.3 参与签名的参数和顺序
+
 
 # 3 性能
 ## 3.1 性能测试环境
